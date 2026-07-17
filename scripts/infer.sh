@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${PROJECT_ROOT}"
+export PYTHONPATH="${PROJECT_ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
+
 # 推理模板：训练完成后，把 MODEL_PATH 和 IMAGE_PATH 改成真实路径再运行。
 MODEL_PATH="outputs/Qwen2.5-VL-3B-Instruct-Thinking"
 IMAGE_PATH="path/to/sample.png"
@@ -15,7 +20,7 @@ if [[ ! -f "${IMAGE_PATH}" ]]; then
   exit 1
 fi
 
-"${PYTHON_BIN}" -m qwen_vl_grpo_reasoning.infer \
+"${PYTHON_BIN}" -m infer \
   --model_path "${MODEL_PATH}" \
   --image_path "${IMAGE_PATH}" \
   --prompt "${PROMPT}" \

@@ -1,4 +1,4 @@
-from qwen_vl_grpo_reasoning.rewards import accuracy_reward, extract_answer_text, think_format_reward
+from utilities.rewards import accuracy_reward, extract_answer_text, think_format_reward
 
 
 def test_extract_answer_text():

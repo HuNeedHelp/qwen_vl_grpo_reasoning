@@ -1,18 +1,20 @@
-from qwen_vl_grpo_reasoning.evaluate import (
+from evaluate import EvalScriptArguments, build_arg_parser, parse_args
+from utilities.eval_io import (
     batched,
-    build_arg_parser,
-    build_paired_rows,
     build_prediction_row,
     build_run_config,
-    bootstrap_ci,
     clear_eval_outputs,
     deduplicate_rows,
-    paired_compare,
-    parse_model_specs,
     read_jsonl,
-    score_completion,
     validate_or_write_run_config,
     write_jsonl,
+)
+from utilities.eval_metrics import (
+    build_paired_rows,
+    bootstrap_ci,
+    paired_compare,
+    parse_model_specs,
+    score_completion,
 )
 
 
@@ -31,6 +33,14 @@ def test_resume_cli_aliases():
     assert parser.parse_args(["--models", "base=model"]).resume is True
     assert parser.parse_args(["--models", "base=model", "--no_resume"]).resume is False
     assert parser.parse_args(["--models", "base=model", "--no-resume"]).resume is False
+
+
+def test_eval_parse_args_returns_dataclass():
+    args = parse_args(["--models", "base=model", "grpo=outputs/model", "--eval_samples", "12"])
+
+    assert isinstance(args, EvalScriptArguments)
+    assert args.models == ["base=model", "grpo=outputs/model"]
+    assert args.eval_samples == 12
 
 
 def test_bootstrap_ci_is_deterministic():

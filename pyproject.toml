@@ -12,6 +12,7 @@ dependencies = [
   "accelerate>=0.34.0",
   "datasets>=2.21.0",
   "huggingface_hub>=0.24.0",
+  "loguru>=0.7.0",
   "peft>=0.12.0",
   "pillow>=10.0.0",
   "qwen-vl-utils>=0.0.8",
@@ -24,12 +25,14 @@ dependencies = [
 dev = ["pytest>=8.0.0", "ruff>=0.6.0"]
 
 [project.scripts]
-qwen-vl-grpo-train = "qwen_vl_grpo_reasoning.train:main"
-qwen-vl-grpo-infer = "qwen_vl_grpo_reasoning.infer:main"
-qwen-vl-grpo-eval = "qwen_vl_grpo_reasoning.evaluate:main"
+qwen-vl-grpo-train = "train:main"
+qwen-vl-grpo-infer = "infer:main"
+qwen-vl-grpo-eval = "evaluate:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+py-modules = ["train", "infer", "evaluate"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["utilities*"]

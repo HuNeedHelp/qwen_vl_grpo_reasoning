@@ -29,20 +29,22 @@ qwen_vl_grpo_reasoning/
 ├─ README.md
 ├─ accelerate_config.yaml
 ├─ scripts/
-│  ├─ train.sh              # 小规模 smoke test 训练
-│  ├─ train_cookbook.sh     # 接近 cookbook 的完整训练模板
+│  ├─ train.sh              # 接近 cookbook 的完整训练模板
+│  ├─ test_run_training.sh  # 小规模 smoke test 训练
 │  ├─ infer.sh              # 单张图片推理
 │  ├─ eval.sh               # base vs GRPO 科学评测
 │  └─ test.sh               # 单元测试
 ├─ src/
-│  └─ qwen_vl_grpo_reasoning/
-│     ├─ __init__.py
-│     ├─ prompts.py         # 训练、推理共用 system prompt
+│  ├─ train.py              # GRPO 训练入口
+│  ├─ infer.py              # 本地推理入口
+│  ├─ evaluate.py           # 批量评测、断点续评、指标汇总
+│  └─ utilities/
 │     ├─ data.py            # 数据加载、过滤、chat prompt 构造
+│     ├─ prompts.py         # 训练、推理共用 system prompt
 │     ├─ rewards.py         # GRPO reward functions
-│     ├─ train.py           # GRPO 训练入口
-│     ├─ infer.py           # 本地推理入口
-│     └─ evaluate.py        # 批量评测、断点续评、指标汇总
+│     ├─ vlm.py             # VLM 加载和图文生成
+│     ├─ eval_metrics.py    # 评测指标与 paired comparison
+│     └─ eval_io.py         # JSONL、summary、断点续评文件管理
 └─ tests/
    ├─ conftest.py
    ├─ test_rewards.py
@@ -69,16 +71,37 @@ pip install -e .
 `pip install -e .` 很重要。项目采用 `src layout`，安装后 Python 才能通过下面的模块路径找到训练入口：
 
 ```bash
-python3 -m qwen_vl_grpo_reasoning.train
+python3 -m train
 ```
 
 注意这里不是：
 
 ```bash
-python3 -m src.qwen_vl_grpo_reasoning.train
+python3 -m src.train
 ```
 
-`src/` 是源码目录，不是 Python 包名。
+`src/` 是源码目录，不是 Python 包名。项目脚本也会自动把 `src/` 加入 `PYTHONPATH`，因此即使没有重新安装 editable package，也可以直接运行脚本。
+
+源码现在按“入口 + 工具模块”拆分：
+
+```text
+src/train.py       # 训练流程编排
+src/infer.py       # 单图推理流程编排
+src/evaluate.py    # 评测流程编排
+src/utilities/     # 可复用能力
+```
+
+这样入口文件不再塞满细节逻辑，数据处理、奖励函数、VLM 生成、评测指标和文件读写都各自独立。
+
+入口脚本的命令行参数使用 Hugging Face `HfArgumentParser` 从 `@dataclass` 自动生成：
+
+```text
+src/train.py     TrainScriptArguments
+src/infer.py     InferScriptArguments
+src/evaluate.py  EvalScriptArguments
+```
+
+这样参数默认值、类型和帮助文档都集中写在 dataclass 字段里，不再手动堆 `parser.add_argument(...)`。脚本里的启动命令仍然保持显式参数，想改实验配置时直接改 `scripts/*.sh` 即可。
 
 如果你使用 Git Bash、WSL 或不同 conda 环境，脚本默认调用 `python3`。如果你的解释器叫 `python`，可以这样运行：
 
@@ -105,7 +128,7 @@ pip install -e .
 bash scripts/test.sh
 
 # 3. 小规模训练试跑
-bash scripts/train.sh
+bash scripts/test_run_training.sh
 
 # 4. 修改 scripts/infer.sh 中的 IMAGE_PATH 后做推理
 bash scripts/infer.sh
@@ -117,7 +140,7 @@ bash scripts/eval.sh
 如果你准备正式复现 cookbook 风格训练，可以用：
 
 ```bash
-bash scripts/train_cookbook.sh
+bash scripts/train.sh
 ```
 
 ## 整体流程
@@ -155,7 +178,7 @@ evaluate.py 批量评测
 
 ## 数据处理流程
 
-数据处理入口在 `src/qwen_vl_grpo_reasoning/data.py`。
+数据处理入口在 `src/utilities/data.py`。
 
 ### 1. 加载数据
 
@@ -214,7 +237,7 @@ processor.apply_chat_template(prompt, tokenize=True, add_generation_prompt=True)
 
 ## Prompt 设计
 
-公共提示词在 `src/qwen_vl_grpo_reasoning/prompts.py`：
+公共提示词在 `src/utilities/prompts.py`：
 
 ```text
 The assistant first thinks about the reasoning process...
@@ -225,7 +248,7 @@ The assistant first thinks about the reasoning process...
 
 ## Reward 设计
 
-奖励函数在 `src/qwen_vl_grpo_reasoning/rewards.py`。
+奖励函数在 `src/utilities/rewards.py`。
 
 ### 格式奖励
 
@@ -248,11 +271,11 @@ The assistant first thinks about the reasoning process...
 
 ## 训练流程
 
-训练入口在 `src/qwen_vl_grpo_reasoning/train.py`。
+训练入口在 `src/train.py`。
 
 核心步骤：
 
-1. 解析命令行参数。
+1. 用 `HfArgumentParser` 将命令行参数解析为 `TrainScriptArguments`。
 2. 创建输出目录。
 3. 加载 `AutoProcessor`。
 4. 加载并处理数据集。
@@ -265,10 +288,10 @@ The assistant first thinks about the reasoning process...
 
 ### 小规模试跑
 
-先用 `scripts/train.sh` 跑通完整链路：
+先用 `scripts/test_run_training.sh` 跑通完整链路：
 
 ```bash
-bash scripts/train.sh
+bash scripts/test_run_training.sh
 ```
 
 默认参数：
@@ -276,10 +299,13 @@ bash scripts/train.sh
 ```bash
 --dataset_split "train[:1%]"
 --max_steps 20
---per_device_train_batch_size 1
+--per_device_train_batch_size 2
 --gradient_accumulation_steps 4
---num_generations 2
+--num_generations 4
 --max_completion_length 512
+--eval_strategy "steps"
+--eval_steps 10
+--per_device_eval_batch_size 1
 --use_peft
 --bf16
 ```
@@ -296,13 +322,13 @@ bash scripts/train.sh
 更完整的训练模板在：
 
 ```bash
-bash scripts/train_cookbook.sh
+bash scripts/train.sh
 ```
 
 核心参数：
 
 ```bash
-accelerate launch --config_file accelerate_config.yaml -m qwen_vl_grpo_reasoning.train \
+accelerate launch --config_file accelerate_config.yaml -m train \
   --model_name_or_path "Qwen/Qwen2.5-VL-3B-Instruct" \
   --dataset_id "lmms-lab/multimodal-open-r1-8k-verified" \
   --dataset_split "train[:5%]" \
@@ -315,6 +341,9 @@ accelerate launch --config_file accelerate_config.yaml -m qwen_vl_grpo_reasoning
   --gradient_accumulation_steps 4 \
   --max_completion_length 1024 \
   --num_generations 2 \
+  --eval_strategy "steps" \
+  --eval_steps 50 \
+  --per_device_eval_batch_size 1 \
   --use_peft \
   --use_vllm \
   --vllm_mode colocate \
@@ -322,7 +351,7 @@ accelerate launch --config_file accelerate_config.yaml -m qwen_vl_grpo_reasoning
   --report_to "tensorboard" \
   --logging_steps 10 \
   --save_strategy "steps" \
-  --save_steps 10 \
+  --save_steps 50 \
   --test_size 100 \
   --seed 42
 ```
@@ -374,12 +403,40 @@ logs/
 
 ```bash
 --report_to "tensorboard"
+--eval_strategy "steps"
+--eval_steps 50
 ```
+
+`eval_strategy` 控制训练中是否定期在 `eval_dataset` 上跑评估：
+
+```text
+no     不做训练期评估
+steps  每隔 eval_steps 个 step 评估一次
+epoch  每个 epoch 结束后评估一次
+```
+
+本项目默认在训练中使用 `steps`。完整训练模板每 50 step 评估一次，小规模 smoke test 每 10 step 评估一次。评估会触发额外的生成和 reward 计算，因此显存或时间压力较大时，可以把 `eval_steps` 调大，或者临时改成 `--eval_strategy "no"`。
 
 普通文本日志默认保存到：
 
 ```text
 outputs/Qwen2.5-VL-3B-Instruct-Thinking/logs/train.log
+```
+
+普通文本日志由 `scripts/train.sh` 或 `scripts/test_run_training.sh` 使用 shell 重定向生成：
+
+```bash
+} > "${LOG_FILE}" 2>&1
+```
+
+因此 `train.log` 会记录 Trainer/tqdm 进度条、warning、stdout/stderr，以及代码里用 `loguru` 输出的关键训练节点。Python 端不再维护复杂的 file handler 或 Tee 逻辑。
+
+代码默认会把 `httpx` 和 `httpcore` 的 HTTP request INFO 日志压到 WARNING，避免 Hugging Face 下载模型和数据集时把日志刷屏。
+
+如果想看实时终端输出并同时保存日志，可以把脚本末尾的重定向改成：
+
+```bash
+} 2>&1 | tee "${LOG_FILE}"
 ```
 
 TensorBoard 日志默认保存到：
@@ -396,11 +453,22 @@ tensorboard --logdir outputs/Qwen2.5-VL-3B-Instruct-Thinking/logs/tensorboard
 
 浏览器打开 TensorBoard 输出的本地地址即可。
 
-如果想手动指定日志位置，可以在训练命令中加入：
+如果想手动指定 TensorBoard 日志位置，可以在训练命令中加入：
 
 ```bash
---log_file "outputs/your-exp/logs/train.log"
 --logging_dir "outputs/your-exp/logs/tensorboard"
+```
+
+如果训练被中断，可以从指定 checkpoint 续训：
+
+```bash
+--resume_from_checkpoint "outputs/your-exp/checkpoint-100"
+```
+
+也可以自动使用 `output_dir` 下编号最大的 checkpoint：
+
+```bash
+--resume_from_checkpoint last
 ```
 
 建议每组实验使用不同的 `output_dir`，这样 checkpoint、adapter、文本日志和 TensorBoard 曲线都会自然隔离。
@@ -414,7 +482,7 @@ tensorboard --logdir outputs/Qwen2.5-VL-3B-Instruct-Thinking/logs/tensorboard
 
 ## 推理流程
 
-推理入口在 `src/qwen_vl_grpo_reasoning/infer.py`。
+推理入口在 `src/infer.py`。
 
 运行前编辑 `scripts/infer.sh`：
 
@@ -443,7 +511,7 @@ bash scripts/infer.sh
 
 ## 评测流程
 
-评测入口在 `src/qwen_vl_grpo_reasoning/evaluate.py`。
+评测入口在 `src/evaluate.py`。
 
 运行前编辑 `scripts/eval.sh`：
 
@@ -477,16 +545,17 @@ bash scripts/eval.sh
 
 ### 评测内部流程
 
-1. 解析 `base=path`、`grpo=path` 形式的模型列表。
-2. 创建输出目录，并立即写入或校验 `run_config.json`。
-3. 加载 processor。
-4. 按和训练一致的数据逻辑构造 eval set。
-5. 对每个模型逐批生成回答。
-6. 每个 batch 完成后立即追加写入 `*_predictions.jsonl`。
-7. 对每条 completion 计算格式分、准确率和总 reward。
-8. 对每个模型汇总整体指标。
-9. 对 GRPO 和 base 做同题 paired comparison。
-10. 保存 JSONL、CSV 和 JSON 汇总。
+1. 用 `HfArgumentParser` 将命令行参数解析为 `EvalScriptArguments`。
+2. 解析 `base=path`、`grpo=path` 形式的模型列表。
+3. 创建输出目录，并立即写入或校验 `run_config.json`。
+4. 加载 processor。
+5. 按和训练一致的数据逻辑构造 eval set。
+6. 对每个模型逐批生成回答。
+7. 每个 batch 完成后立即追加写入 `*_predictions.jsonl`。
+8. 对每条 completion 计算格式分、准确率和总 reward。
+9. 对每个模型汇总整体指标。
+10. 对 GRPO 和 base 做同题 paired comparison。
+11. 保存 JSONL、CSV 和 JSON 汇总。
 
 ### 批量推理
 
@@ -665,19 +734,19 @@ outputs/eval/base_vs_grpo/grpo_vs_base_paired.jsonl
 
 ## 常见问题
 
-### 为什么不用 `-m src.qwen_vl_grpo_reasoning.train`？
+### 为什么不用 `-m src.train`？
 
-因为 `-m` 后面接的是 Python 模块路径，不是文件系统路径。执行 `pip install -e .` 后，可导入包名是：
+因为 `-m` 后面接的是 Python 模块路径，不是文件系统路径。执行 `pip install -e .` 后，可导入入口模块是：
 
 ```text
-qwen_vl_grpo_reasoning
+train
 ```
 
 所以正确写法是：
 
 ```bash
-python3 -m qwen_vl_grpo_reasoning.train
-accelerate launch -m qwen_vl_grpo_reasoning.train
+python3 -m train
+accelerate launch -m train
 ```
 
 ### 为什么保留 `solution` 列？
