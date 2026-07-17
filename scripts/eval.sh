@@ -31,3 +31,6 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
   --device_map "auto" \
   --no_resume \
   --output_dir "${OUTPUT_DIR}"
+
+
+/usr/bin/shutdown
