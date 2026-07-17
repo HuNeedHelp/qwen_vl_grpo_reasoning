@@ -6,11 +6,9 @@ venv/
 dist/
 build/
 *.egg-info/
-outputs/
 runs/
 .env
 .env.*
-*.log
 *.pt
 *.bin
 *.safetensors
