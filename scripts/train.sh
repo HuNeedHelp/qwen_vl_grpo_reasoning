@@ -1,28 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 小规模试跑配置：先确认数据、奖励函数、模型加载和训练循环能跑通。
-# 需要改参数时，直接改下面的命令即可。
-PYTHON_BIN="${PYTHON_BIN:-python3}"
-OUTPUT_DIR="outputs/test_run_training"
-
-"${PYTHON_BIN}" -m src.qwen_vl_grpo_reasoning.train \
+# 接近 Hugging Face Cookbook 的完整训练模板。
+# 如果不用 vLLM，删除 --use_vllm 和 --vllm_mode 两行即可。
+accelerate launch --config_file accelerate_config.yaml -m qwen_vl_grpo_reasoning.train \
   --model_name_or_path "Qwen/Qwen2.5-VL-3B-Instruct" \
   --dataset_id "lmms-lab/multimodal-open-r1-8k-verified" \
-  --dataset_split "train[:1%]" \
-  --output_dir "${OUTPUT_DIR}" \
+  --dataset_split "train[:5%]" \
+  --output_dir "outputs/Qwen2.5-VL-3B-Instruct-Thinking" \
   --max_prompt_tokens 2048 \
   --learning_rate 1e-5 \
-  --max_steps 20 \
+  --num_train_epochs 1 \
   --bf16 \
   --per_device_train_batch_size 2 \
   --gradient_accumulation_steps 4 \
-  --max_completion_length 512 \
-  --num_generations 3 \
+  --max_completion_length 1024 \
+  --num_generations 2 \
   --use_peft \
+  --use_vllm \
+  --vllm_mode colocate \
+  --log_completions \
   --report_to "tensorboard" \
-  --logging_steps 1 \
+  --logging_steps 10 \
   --save_strategy "steps" \
-  --save_steps 20 \
-  --test_size 20 \
+  --save_steps 10 \
+  --test_size 100 \
   --seed 42
