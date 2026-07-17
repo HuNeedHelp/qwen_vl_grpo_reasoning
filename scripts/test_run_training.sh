@@ -18,7 +18,7 @@ OUTPUT_DIR="outputs/test_run_training"
   --per_device_train_batch_size 2 \
   --gradient_accumulation_steps 4 \
   --max_completion_length 512 \
-  --num_generations 3 \
+  --num_generations 4 \
   --use_peft \
   --report_to "tensorboard" \
   --logging_steps 1 \

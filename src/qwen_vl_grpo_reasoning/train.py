@@ -119,16 +119,6 @@ def _setup_logging(output_dir: Path, log_file: str | None) -> Path:
     file_handler.setFormatter(formatter)
     root_logger.addHandler(file_handler)
 
-    try:
-        # transformers/trl 内部也使用 logging，这里把它们的日志级别调到 info。
-        from transformers.utils import logging as transformers_logging
-
-        transformers_logging.set_verbosity_info()
-        transformers_logging.enable_default_handler()
-        transformers_logging.enable_explicit_format()
-    except Exception:
-        logger.debug("transformers logging setup skipped", exc_info=True)
-
     return log_path
 
 
@@ -257,7 +247,7 @@ def main() -> None:
     )
 
     logger.info("start training")
-    trainer.train()
+    trainer.train(resume_from_checkpoint=)
     logger.info("training finished, saving model to %s", output_dir)
     trainer.save_model(str(output_dir))
 
