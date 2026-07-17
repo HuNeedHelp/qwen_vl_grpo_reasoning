@@ -6,7 +6,7 @@
     },
     {
       "label": "grpo",
-      "path": "outputs/Qwen2.5-VL-3B-Instruct-Thinking"
+      "path": "outputs/test_run_training"
     }
   ],
   "processor_path": "Qwen/Qwen2.5-VL-3B-Instruct",

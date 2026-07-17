@@ -40,7 +40,7 @@ mkdir -p "${LOG_DIR}"
     # 训练期评估：smoke test 中更频繁，方便确认 TensorBoard 有 eval 指标
     --eval_strategy "steps"
     --eval_steps 10
-    --per_device_eval_batch_size 1
+    --per_device_eval_batch_size 8
 
     # 精度与显存优化
     --bf16

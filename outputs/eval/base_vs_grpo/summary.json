@@ -26,15 +26,15 @@
         "ci_high": 0.38
       },
       "avg_completion_tokens": 271.52,
-      "avg_latency_seconds": 3.0319726188108325,
+      "avg_latency_seconds": 3.3588710365630687,
       "invalid_output_rate": 0.71
     },
     "grpo": {
       "num_samples": 100,
       "format_rate": {
-        "mean": 0.26,
-        "ci_low": 0.18,
-        "ci_high": 0.35
+        "mean": 0.21,
+        "ci_low": 0.14,
+        "ci_high": 0.3
       },
       "accuracy": {
         "mean": 0.0,
@@ -42,28 +42,28 @@
         "ci_high": 0.0
       },
       "avg_total_reward": {
-        "mean": 0.26,
-        "ci_low": 0.17,
-        "ci_high": 0.35
+        "mean": 0.21,
+        "ci_low": 0.13,
+        "ci_high": 0.29
       },
-      "avg_completion_tokens": 256.28,
-      "avg_latency_seconds": 3.7381304815411567,
-      "invalid_output_rate": 0.74
+      "avg_completion_tokens": 275.8,
+      "avg_latency_seconds": 4.3846380613185465,
+      "invalid_output_rate": 0.79
     }
   },
   "paired_comparisons": {
     "grpo_vs_base": {
       "num_samples": 100,
-      "wins": 5,
-      "ties": 87,
-      "losses": 8,
-      "win_rate": 0.05,
-      "tie_rate": 0.87,
-      "loss_rate": 0.08,
+      "wins": 2,
+      "ties": 88,
+      "losses": 10,
+      "win_rate": 0.02,
+      "tie_rate": 0.88,
+      "loss_rate": 0.1,
       "total_reward_delta": {
-        "mean": -0.03,
-        "ci_low": -0.1,
-        "ci_high": 0.04
+        "mean": -0.08,
+        "ci_low": -0.15,
+        "ci_high": -0.02
       },
       "accuracy_delta": {
         "mean": 0.0,
@@ -71,9 +71,9 @@
         "ci_high": 0.0
       },
       "format_delta": {
-        "mean": -0.03,
-        "ci_low": -0.1,
-        "ci_high": 0.04
+        "mean": -0.08,
+        "ci_low": -0.15,
+        "ci_high": -0.02
       }
     }
   }

@@ -10,7 +10,7 @@ export PYTHONPATH="${PROJECT_ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
 # 科学评测模板：用同一批留出样本比较 base model 和 GRPO 后训练模型。
 # 训练完成后，把 GRPO_MODEL_PATH 改成你的 checkpoint/adaptor 目录。
 BASE_MODEL_PATH="Qwen/Qwen2.5-VL-3B-Instruct"
-GRPO_MODEL_PATH="outputs/Qwen2.5-VL-3B-Instruct-Thinking"
+GRPO_MODEL_PATH="outputs/test_run_training"
 OUTPUT_DIR="outputs/eval/base_vs_grpo"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 
@@ -29,5 +29,5 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
   --bootstrap_samples 1000 \
   --seed 42 \
   --device_map "auto" \
-  --resume \
+  --no_resume \
   --output_dir "${OUTPUT_DIR}"
