@@ -63,6 +63,17 @@ def test_score_completion():
     assert scores["answer"] == "42"
 
 
+def test_score_completion_extracts_gold_answer_for_choice_questions():
+    scores = score_completion(
+        "<think>reason</think><answer>D. Right</answer>",
+        "<think>gold reason</think><answer>D</answer>",
+    )
+
+    assert scores["format_score"] == 1.0
+    assert scores["accuracy"] == 1.0
+    assert scores["total_reward"] == 2.0
+
+
 def test_paired_compare_and_rows():
     baseline_rows = [
         {

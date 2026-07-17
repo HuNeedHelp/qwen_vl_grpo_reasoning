@@ -7,6 +7,10 @@ from typing import Any
 
 _FORMAT_RE = re.compile(r"^<think>\s*.*?\s*</think>\s*<answer>\s*.*?\s*</answer>$", re.DOTALL)
 _ANSWER_RE = re.compile(r"<answer>\s*(.*?)\s*</answer>", re.DOTALL)
+_CHOICE_RE = re.compile(
+    r"(?:^|\b)(?:the\s+correct\s+answer\s+is\s+|answer\s*:?\s*)?([A-D])(?:\b|[\.\)])",
+    re.IGNORECASE,
+)
 
 try:
     from latex2sympy2_extended import NormalizationConfig
@@ -62,6 +66,30 @@ def _normalize_text(text: str) -> str:
     return text
 
 
+def _extract_choice_letter(text: str) -> str | None:
+    """从选择题答案中提取 A/B/C/D，兼容 `D`、`D. Right`、`answer: D` 等写法。"""
+
+    normalized = extract_answer_text(text).strip()
+    if re.fullmatch(r"[A-Da-d]", normalized):
+        return normalized.upper()
+
+    match = _CHOICE_RE.search(normalized)
+    if match:
+        return match.group(1).upper()
+    return None
+
+
+def _text_or_choice_match(prediction: str, target: str) -> bool:
+    """普通文本匹配；如果两边都是选择题答案，则按选项字母匹配。"""
+
+    if _normalize_text(prediction) == _normalize_text(target):
+        return True
+
+    pred_choice = _extract_choice_letter(prediction)
+    target_choice = _extract_choice_letter(target)
+    return pred_choice is not None and target_choice is not None and pred_choice == target_choice
+
+
 def _math_verify_reward(prediction: str, solution: str) -> float | None:
     """尽量使用 math_verify 做数学答案校验；失败时返回 None。"""
 
@@ -114,9 +142,10 @@ def accuracy_reward(
     rewards: list[float | None] = []
     for completion, target in zip(completions, targets):
         prediction = extract_answer_text(completion)
-        reward = _math_verify_reward(prediction, target)
+        target_answer = extract_answer_text(target)
+        reward = _math_verify_reward(prediction, target_answer)
         if reward is None:
-            reward = 1.0 if _normalize_text(prediction) == _normalize_text(target) else 0.0
+            reward = 1.0 if _text_or_choice_match(prediction, target_answer) else 0.0
         rewards.append(reward)
     return rewards
 
