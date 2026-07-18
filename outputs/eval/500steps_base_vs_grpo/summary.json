@@ -1,6 +1,7 @@
 {
   "dataset_id": "lmms-lab/multimodal-open-r1-8k-verified",
-  "dataset_split": "train[:5%]",
+  "source_split": "train",
+  "train_size": null,
   "eval_samples": 100,
   "seed": 42,
   "max_prompt_tokens": 2048,
@@ -12,68 +13,68 @@
       "num_samples": 100,
       "format_rate": {
         "mean": 0.29,
-        "ci_low": 0.21,
-        "ci_high": 0.38
+        "ci_low": 0.2,
+        "ci_high": 0.37
       },
       "accuracy": {
-        "mean": 0.4,
-        "ci_low": 0.3,
-        "ci_high": 0.51
+        "mean": 0.2,
+        "ci_low": 0.13,
+        "ci_high": 0.28
       },
       "avg_total_reward": {
-        "mean": 0.69,
-        "ci_low": 0.57,
-        "ci_high": 0.82
+        "mean": 0.49,
+        "ci_low": 0.38,
+        "ci_high": 0.61
       },
-      "avg_completion_tokens": 271.52,
-      "avg_latency_seconds": 3.328288228120655,
+      "avg_completion_tokens": 270.1,
+      "avg_latency_seconds": 3.311657475363463,
       "invalid_output_rate": 0.71
     },
     "grpo": {
       "num_samples": 100,
       "format_rate": {
-        "mean": 0.96,
-        "ci_low": 0.92,
-        "ci_high": 0.99
+        "mean": 0.98,
+        "ci_low": 0.95,
+        "ci_high": 1.0
       },
       "accuracy": {
-        "mean": 0.51,
-        "ci_low": 0.42,
-        "ci_high": 0.61
+        "mean": 0.23,
+        "ci_low": 0.15,
+        "ci_high": 0.31
       },
       "avg_total_reward": {
-        "mean": 1.47,
-        "ci_low": 1.37,
-        "ci_high": 1.57
+        "mean": 1.21,
+        "ci_low": 1.13,
+        "ci_high": 1.3
       },
-      "avg_completion_tokens": 217.16,
-      "avg_latency_seconds": 3.445364306997508,
-      "invalid_output_rate": 0.040000000000000036
+      "avg_completion_tokens": 224.7,
+      "avg_latency_seconds": 3.552363118454814,
+      "invalid_output_rate": 0.020000000000000018
     }
   },
   "paired_comparisons": {
     "grpo_vs_base": {
       "num_samples": 100,
-      "wins": 65,
+      "wins": 67,
       "ties": 31,
-      "losses": 4,
-      "win_rate": 0.65,
+      "losses": 2,
+      "win_rate": 0.67,
       "tie_rate": 0.31,
-      "loss_rate": 0.04,
+      "loss_rate": 0.02,
       "total_reward_delta": {
-        "mean": 0.78,
-        "ci_low": 0.63,
-        "ci_high": 0.93
+        "mean": 0.72,
+        "ci_low": 0.6,
+        "ci_high": 0.84
       },
       "accuracy_delta": {
-        "mean": 0.11,
-        "ci_low": 0.01,
-        "ci_high": 0.22
+        "mean": 0.03,
+        "ci_low": -0.05,
+        "ci_high": 0.1
       },
       "format_delta": {
-        "mean": 0.67,
-        "ci_low": 0.57,
-        "ci_high": 0.76
+        "mean": 0.69,
+        "ci_low": 0.59,
+        "ci_high": 0.77
       }
     }
   }
