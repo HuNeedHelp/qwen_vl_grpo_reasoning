@@ -196,7 +196,35 @@ image     # PIL 图片
 solution  # 标准答案
 ```
 
-### 2. 图片过滤与转换
+当前数据集在 Hub 上主要提供 `train` split，因此项目不再暴露 `dataset_split` 参数，也不使用 `train[:5%]` 这类远端 slice。代码会固定加载完整 `train` split，然后在本地用固定 `seed` 做确定性的 train/eval 切分。
+
+### 2. 本地 train/eval 切分
+
+代码会在 `src/utilities/data.py` 里按这个顺序处理：
+
+```text
+load_dataset(dataset_id, split="train")
+  -> 过滤过大图片
+  -> 转 RGB
+  -> train_test_split(train_size=train_size, test_size=test_size, seed=seed)
+  -> train/eval 分别转换成 GRPO 样本
+```
+
+其中 `test_size` 控制留出的验证/评测样本数；`train_size` 可选，控制训练样本数。`train_size=None` 时，训练集会使用除 test set 之外的全部样本。小规模 smoke test 不再靠 `train[:1%]`，而是用 `--train_size 80 --test_size 20` 明确控制本地切分大小。
+
+为了避免训练集和评测集重叠，正式训练和评测应保持这几个参数一致：
+
+```text
+dataset_id
+train_size
+test_size
+seed
+max_prompt_tokens
+```
+
+例如训练使用 `--train_size 500 --test_size 100 --seed 42`，评测也应该使用同样的 `train_size/test_size/seed`，这样复现出来的 eval set 才是同一批留出样本。
+
+### 3. 图片过滤与转换
 
 代码会过滤宽高大于等于 `512` 的图片：
 
@@ -206,7 +234,7 @@ image.size[0] < 512 and image.size[1] < 512
 
 这样做是为了降低 VLM 训练时的视觉 token 数量和显存压力。随后所有图片都会转换成 RGB。
 
-### 3. 构造 prompt
+### 4. 构造 prompt
 
 原始 `problem` 会被转换成对话格式：
 
@@ -219,7 +247,7 @@ image.size[0] < 512 and image.size[1] < 512
 
 训练时 `GRPOTrainer` 会结合 processor 和数据中的 `image` 字段处理图文输入。
 
-### 4. 过滤超长 prompt
+### 5. 过滤超长 prompt
 
 TRL 里的 `max_prompt_length` 已经 deprecated。本项目使用项目级参数：
 
@@ -297,7 +325,8 @@ bash scripts/test_run_training.sh
 默认参数：
 
 ```bash
---dataset_split "train[:1%]"
+--train_size 80
+--test_size 20
 --max_steps 20
 --per_device_train_batch_size 2
 --gradient_accumulation_steps 4
@@ -331,7 +360,6 @@ bash scripts/train.sh
 accelerate launch --config_file accelerate_config.yaml -m train \
   --model_name_or_path "Qwen/Qwen2.5-VL-3B-Instruct" \
   --dataset_id "lmms-lab/multimodal-open-r1-8k-verified" \
-  --dataset_split "train[:5%]" \
   --output_dir "outputs/Qwen2.5-VL-3B-Instruct-Thinking" \
   --max_prompt_tokens 2048 \
   --learning_rate 1e-5 \
@@ -530,7 +558,6 @@ bash scripts/eval.sh
 默认评测参数：
 
 ```bash
---dataset_split "train[:5%]"
 --test_size 100
 --eval_samples 100
 --max_prompt_tokens 2048

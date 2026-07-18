@@ -193,6 +193,8 @@ def test_build_run_config_uses_requested_eval_samples():
             "grpo=model-b",
             "--processor_path",
             "processor",
+            "--train_size",
+            "456",
             "--eval_samples",
             "123",
             "--eval_batch_size",
@@ -204,6 +206,7 @@ def test_build_run_config_uses_requested_eval_samples():
     config = build_run_config(specs, args.processor_path, args)
 
     assert config["eval_samples"] == 123
+    assert config["train_size"] == 456
     assert config["eval_batch_size"] == 4
     assert config["models"] == [
         {"label": "base", "path": "model-a"},

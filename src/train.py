@@ -29,20 +29,16 @@ class TrainScriptArguments:
         default="lmms-lab/multimodal-open-r1-8k-verified",
         metadata={"help": "训练数据集 ID。"},
     )
-    dataset_split: str = field(
-        default="train[:5%]",
-        metadata={"help": "datasets.load_dataset 使用的数据 split。"},
+    train_size: int | None = field(
+        default=None,
+        metadata={"help": "本地 train_test_split 后使用的训练样本数；None 表示使用除 test_size 外的全部样本。"},
     )
     output_dir: str = field(
         default="outputs/grpo-qwen2p5-vl",
         metadata={"help": "模型、checkpoint 和日志输出目录。"},
     )
-    test_size: int = field(default=100, metadata={"help": "从训练 split 中切出的验证样本数。"})
+    test_size: int = field(default=100, metadata={"help": "本地 train_test_split 切出的验证样本数。"})
     seed: int = field(default=42, metadata={"help": "随机种子。"})
-    max_train_samples: int | None = field(
-        default=None,
-        metadata={"help": "最多使用多少条训练样本；None 表示不截断。"},
-    )
     max_prompt_tokens: int | None = field(
         default=None,
         metadata={"help": "训练前过滤超过该 token 数的 prompt；用于替代 deprecated 的 GRPOConfig.max_prompt_length。"},
@@ -215,15 +211,15 @@ def main() -> None:
 
         raw_cfg = DatasetConfig(
             dataset_id=args.dataset_id,
-            dataset_split=args.dataset_split,
+            train_size=args.train_size,
             test_size=args.test_size,
             seed=args.seed,
-            max_train_samples=args.max_train_samples,
         )
         raw_dataset = load_raw_dataset(raw_cfg)
         train_dataset, eval_dataset = prepare_datasets(
             raw_dataset,
             processor,
+            train_size=args.train_size,
             test_size=args.test_size,
             seed=args.seed,
             max_prompt_tokens=args.max_prompt_tokens,

@@ -25,7 +25,7 @@ mkdir -p "${LOG_DIR}"
 
     # 数据集与 prompt 过滤
     --dataset_id "lmms-lab/multimodal-open-r1-8k-verified"
-    --dataset_split "train[:1%]"
+    --train_size 80
     --test_size 20
     --max_prompt_tokens 2048
 

@@ -51,13 +51,13 @@ class EvalScriptArguments:
         default="lmms-lab/multimodal-open-r1-8k-verified",
         metadata={"help": "评测数据集 ID。"},
     )
-    dataset_split: str = field(
-        default="train[:5%]",
-        metadata={"help": "datasets.load_dataset 使用的数据 split。"},
+    train_size: int | None = field(
+        default=None,
+        metadata={"help": "本地 train_test_split 后使用的训练样本数；需要和训练时保持一致。"},
     )
     test_size: int = field(
         default=100,
-        metadata={"help": "prepare_datasets 切分验证集时使用的验证样本数。"},
+        metadata={"help": "本地 train_test_split 切出的验证样本数；需要和训练时保持一致。"},
     )
     eval_samples: int = field(default=100, metadata={"help": "实际评测样本数。"})
     seed: int = field(default=42, metadata={"help": "随机种子。"})
@@ -102,9 +102,10 @@ def _prepare_eval_dataset(args: EvalScriptArguments, processor: Any) -> Any:
 
     from utilities.data import DatasetConfig, load_raw_dataset, prepare_datasets
 
+    # 评测必须复用训练时的本地切分参数，否则 eval set 可能不是同一批留出样本。
     raw_cfg = DatasetConfig(
         dataset_id=args.dataset_id,
-        dataset_split=args.dataset_split,
+        train_size=args.train_size,
         test_size=args.test_size,
         seed=args.seed,
     )
@@ -112,10 +113,12 @@ def _prepare_eval_dataset(args: EvalScriptArguments, processor: Any) -> Any:
     _, eval_dataset = prepare_datasets(
         raw_dataset,
         processor,
+        train_size=args.train_size,
         test_size=args.test_size,
         seed=args.seed,
         max_prompt_tokens=args.max_prompt_tokens,
     )
+    # eval_samples 只控制“最终评测多少条”，不会改变原始 train/eval 切分。
     return eval_dataset.select(range(min(args.eval_samples, len(eval_dataset))))
 
 
@@ -129,6 +132,8 @@ def _evaluate_model(
     tqdm: Any,
 ) -> list[dict[str, Any]]:
     predictions_path = output_dir / f"{spec.label}_predictions.jsonl"
+
+    # 断点续评：读取已有 JSONL，按 sample_id 去重，并跳过已经完成的样本。
     if args.resume:
         rows = deduplicate_rows(read_jsonl(predictions_path), max_sample_id=len(eval_dataset))
         if predictions_path.exists():
@@ -151,6 +156,7 @@ def _evaluate_model(
 
     import torch
 
+    # 每次只加载一个待评测模型；评完后释放显存，便于 base / GRPO 顺序比较。
     model = load_model(spec.path, device_map=args.device_map)
     progress_bar = tqdm(
         total=len(eval_dataset),
@@ -163,6 +169,7 @@ def _evaluate_model(
 
     for sample_ids in batched(pending_ids, args.eval_batch_size):
         batch_examples = [eval_dataset[idx] for idx in sample_ids]
+        # generate_batch 内部会完成 apply_chat_template、图片预处理、model.generate 和 decode。
         batch_outputs = generate_batch(
             model,
             processor,
@@ -171,6 +178,7 @@ def _evaluate_model(
             temperature=args.temperature,
             top_p=args.top_p,
         )
+        # 每条样本立即计算格式分、准确率和 reward，形成稳定的 predictions JSONL schema。
         new_rows = [
             build_prediction_row(
                 sample_id=sample_id,
@@ -187,6 +195,7 @@ def _evaluate_model(
             )
         ]
         rows.extend(new_rows)
+        # batch 级追加写盘：即使中途 OOM 或手动停止，也能从最后完成的样本继续。
         append_jsonl(predictions_path, new_rows)
         progress_bar.update(len(new_rows))
 
@@ -220,6 +229,7 @@ def main() -> None:
     run_config = build_run_config(specs, processor_path, args)
     if not args.resume:
         clear_eval_outputs(output_dir, specs)
+    # run_config 是实验指纹；续评时如果模型、数据、生成参数变化，会阻止混写旧结果。
     validate_or_write_run_config(
         output_dir / "run_config.json",
         run_config,
@@ -233,10 +243,12 @@ def main() -> None:
     processor = AutoProcessor.from_pretrained(processor_path, use_fast=True, padding_side="left")
     eval_dataset = _prepare_eval_dataset(args, processor)
 
+    # summary.json 汇总全局配置、每个模型的指标，以及候选模型相对 baseline 的配对比较。
     all_rows: dict[str, list[dict[str, Any]]] = {}
     summary: dict[str, Any] = {
         "dataset_id": args.dataset_id,
-        "dataset_split": args.dataset_split,
+        "source_split": "train",
+        "train_size": args.train_size,
         "eval_samples": len(eval_dataset),
         "seed": args.seed,
         "max_prompt_tokens": args.max_prompt_tokens,
@@ -248,6 +260,7 @@ def main() -> None:
     }
 
     for spec in specs:
+        # 逐个模型评测，避免多个 VLM 同时驻留显存。
         rows = _evaluate_model(
             spec=spec,
             eval_dataset=eval_dataset,
@@ -257,6 +270,7 @@ def main() -> None:
             tqdm=tqdm,
         )
         all_rows[spec.label] = rows
+        # 单模型指标：格式合规率、准确率、平均 reward、输出长度、延迟和 bootstrap CI。
         summary["models"][spec.label] = summarize_model(
             rows,
             bootstrap_samples=args.bootstrap_samples,
@@ -266,6 +280,7 @@ def main() -> None:
 
     baseline_label = specs[0].label
     for spec in specs[1:]:
+        # 第一个模型作为 baseline；后续模型都和它在同一批 sample_id 上做 paired comparison。
         comparison_name = f"{spec.label}_vs_{baseline_label}"
         baseline_rows = all_rows[baseline_label]
         candidate_rows = all_rows[spec.label]
