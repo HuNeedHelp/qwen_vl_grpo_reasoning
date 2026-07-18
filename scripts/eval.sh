@@ -18,7 +18,7 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
   --models "base=${BASE_MODEL_PATH}" "grpo=${GRPO_MODEL_PATH}" \
   --processor_path "${BASE_MODEL_PATH}" \
   --dataset_id "lmms-lab/multimodal-open-r1-8k-verified" \
-  --test_size 100 \
+  --test_size 0.2 \
   --eval_samples 100 \
   --max_prompt_tokens 2048 \
   --max_new_tokens 512 \

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union
 
 from transformers import HfArgumentParser
 
@@ -51,13 +51,13 @@ class EvalScriptArguments:
         default="lmms-lab/multimodal-open-r1-8k-verified",
         metadata={"help": "评测数据集 ID。"},
     )
-    train_size: int | float | None = field(
+    train_size: Optional[Union[int, float]] = field(
         default=None,
         metadata={
             "help": "本地 train_test_split 后使用的训练样本数。整数表示样本数，浮点数表示比例（如 0.8）；None 表示使用除 test_size 外的全部样本。"
         },
     )
-    test_size: int | float = field(
+    test_size: Union[int, float] = field(
         default=100,
         metadata={"help": "本地 train_test_split 切出的大小。整数表示样本数，浮点数表示比例（如 0.2）；需要和训练时保持一致。"},
     )
