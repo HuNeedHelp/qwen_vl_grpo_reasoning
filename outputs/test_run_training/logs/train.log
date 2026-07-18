@@ -1,8 +1,9 @@
 log_file: outputs/test_run_training/logs/train.log
-started_at: 2026-07-17 23:54:18
-2026-07-17 23:54:19.176 | INFO     | __main__:main:201 - output_dir: outputs/test_run_training
-2026-07-17 23:54:19.177 | INFO     | __main__:main:202 - logging_dir: outputs/test_run_training/logs/tensorboard
-2026-07-17 23:54:19.177 | INFO     | __main__:main:203 - args: TrainScriptArguments(model_name_or_path='Qwen/Qwen2.5-VL-3B-Instruct', dataset_id='lmms-lab/multimodal-open-r1-8k-verified', dataset_split='train[:1%]', output_dir='outputs/test_run_training', test_size=20, seed=42, max_train_samples=None, max_prompt_tokens=2048, learning_rate=1e-05, num_train_epochs=1.0, max_steps=20, per_device_train_batch_size=2, gradient_accumulation_steps=4, num_generations=4, max_completion_length=512, eval_strategy='steps', eval_steps=10, per_device_eval_batch_size=8, logging_steps=5, save_steps=20, save_strategy='steps', report_to='tensorboard', resume_from_checkpoint=None, logging_dir=None, remove_unused_columns=False, bf16=True, fp16=False, gradient_checkpointing=True, use_peft=True, lora_r=8, lora_alpha=32, lora_dropout=0.1, lora_target_modules='q_proj,v_proj', use_vllm=False, vllm_mode='colocate', log_completions=False, push_to_hub=False, hub_model_id=None, device_map_auto=False)
+started_at: 2026-07-18 00:28:13
+2026-07-18 00:28:14.052 | INFO     | __main__:main:201 - output_dir: outputs/test_run_training
+2026-07-18 00:28:14.053 | INFO     | __main__:main:202 - logging_dir: outputs/test_run_training/logs/tensorboard
+2026-07-18 00:28:14.053 | INFO     | __main__:main:203 - args: TrainScriptArguments(model_name_or_path='Qwen/Qwen2.5-VL-3B-Instruct', dataset_id='lmms-lab/multimodal-open-r1-8k-verified', dataset_split='train[:1%]', output_dir='outputs/test_run_training', test_size=20, seed=42, max_train_samples=None, max_prompt_tokens=2048, learning_rate=1e-05, num_train_epochs=1.0, max_steps=20, per_device_train_batch_size=2, gradient_accumulation_steps=4, num_generations=4, max_completion_length=512, eval_strategy='steps', eval_steps=10, per_device_eval_batch_size=8, logging_steps=5, save_steps=20, save_strategy='steps', report_to='tensorboard', resume_from_checkpoint=None, logging_dir=None, remove_unused_columns=False, bf16=True, fp16=False, gradient_checkpointing=True, use_peft=True, lora_r=8, lora_alpha=32, lora_dropout=0.1, lora_target_modules='q_proj,v_proj', use_vllm=False, vllm_mode='colocate', log_completions=False, push_to_hub=False, hub_model_id=None, device_map_auto=False)
+[transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
 Traceback (most recent call last):
   File "/root/miniconda3/envs/rlhf/lib/python3.10/runpy.py", line 196, in _run_module_as_main
     return _run_code(code, main_globals, None,
@@ -10,32 +11,22 @@ Traceback (most recent call last):
     exec(code, run_globals)
   File "/root/autodl-tmp/qwen_vl_grpo_reasoning/src/train.py", line 297, in <module>
     main()
-  File "/root/autodl-tmp/qwen_vl_grpo_reasoning/src/train.py", line 210, in main
-    processor = AutoProcessor.from_pretrained(
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/transformers/models/auto/processing_auto.py", line 224, in from_pretrained
-    processor_config_file = cached_file(pretrained_model_name_or_path, PROCESSOR_NAME, **cached_file_kwargs)
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/transformers/utils/hub.py", line 293, in cached_file
-    file = cached_files(path_or_repo_id=path_or_repo_id, filenames=[filename], **kwargs)
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/transformers/utils/hub.py", line 437, in cached_files
-    hf_hub_download(
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
-    return fn(*args, **kwargs)
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/file_download.py", line 1013, in hf_hub_download
-    return _hf_hub_download_to_cache_dir(
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/file_download.py", line 1088, in _hf_hub_download_to_cache_dir
-    (url_to_download, etag, commit_hash, expected_size, xet_file_data, head_call_error) = _get_metadata_or_catch_error(
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/file_download.py", line 1707, in _get_metadata_or_catch_error
-    metadata = get_hf_file_metadata(
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/utils/_validators.py", line 88, in _inner_fn
-    return fn(*args, **kwargs)
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/file_download.py", line 1615, in get_hf_file_metadata
-    response = _httpx_follow_relative_redirects_with_backoff(
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/utils/_http.py", line 719, in _httpx_follow_relative_redirects_with_backoff
-    response = http_backoff(
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/utils/_http.py", line 596, in http_backoff
-    return next(
-  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/huggingface_hub/utils/_http.py", line 504, in _http_backoff_base
-    response = client.request(method=method, url=url, **kwargs)
+  File "/root/autodl-tmp/qwen_vl_grpo_reasoning/src/train.py", line 223, in main
+    raw_dataset = load_raw_dataset(raw_cfg)
+  File "/root/autodl-tmp/qwen_vl_grpo_reasoning/src/utilities/data.py", line 27, in load_raw_dataset
+    dataset = load_dataset(cfg.dataset_id, split=cfg.dataset_split)
+  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/datasets/load.py", line 1698, in load_dataset
+    builder_instance = load_dataset_builder(
+  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/datasets/load.py", line 1325, in load_dataset_builder
+    dataset_module = dataset_module_factory(
+  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/datasets/load.py", line 1184, in dataset_module_factory
+    return HubDatasetModuleFactory(
+  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/datasets/load.py", line 582, in __init__
+    increase_load_count(name)
+  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/datasets/load.py", line 201, in increase_load_count
+    get_session().head(
+  File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/httpx/_client.py", line 1111, in head
+    return self.request(
   File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/httpx/_client.py", line 825, in request
     return self.send(request, auth=auth, follow_redirects=follow_redirects)
   File "/root/miniconda3/envs/rlhf/lib/python3.10/site-packages/httpx/_client.py", line 914, in send

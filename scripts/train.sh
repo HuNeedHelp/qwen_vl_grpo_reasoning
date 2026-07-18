@@ -29,17 +29,17 @@ mkdir -p "${LOG_DIR}"
     --max_prompt_tokens 2048
 
     # 训练步数、batch 和生成配置
-    --max_steps 1 # 500
+    --max_steps 500
     --learning_rate 1e-5
     --num_train_epochs 1
-    --per_device_train_batch_size 2
+    --per_device_train_batch_size 4
     --gradient_accumulation_steps 4
     --num_generations 2
     --max_completion_length 1024
 
     # 训练期评估：指标会写入 TensorBoard
     --eval_strategy "steps"
-    --eval_steps 1 # 50
+    --eval_steps 50
     --per_device_eval_batch_size 8
 
     # 精度与显存优化
@@ -57,7 +57,7 @@ mkdir -p "${LOG_DIR}"
 
     # checkpoint 保存策略
     --save_strategy "steps"
-    --save_steps 1 # 50
+    --save_steps 50
 
     # 随机性控制
     --seed 42

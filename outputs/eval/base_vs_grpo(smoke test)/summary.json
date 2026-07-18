@@ -1,0 +1,80 @@
+{
+  "dataset_id": "lmms-lab/multimodal-open-r1-8k-verified",
+  "dataset_split": "train[:5%]",
+  "eval_samples": 100,
+  "seed": 42,
+  "max_prompt_tokens": 2048,
+  "max_new_tokens": 512,
+  "eval_batch_size": 2,
+  "resume": false,
+  "models": {
+    "base": {
+      "num_samples": 100,
+      "format_rate": {
+        "mean": 0.29,
+        "ci_low": 0.21,
+        "ci_high": 0.38
+      },
+      "accuracy": {
+        "mean": 0.4,
+        "ci_low": 0.3,
+        "ci_high": 0.51
+      },
+      "avg_total_reward": {
+        "mean": 0.69,
+        "ci_low": 0.57,
+        "ci_high": 0.82
+      },
+      "avg_completion_tokens": 271.52,
+      "avg_latency_seconds": 3.294474061690271,
+      "invalid_output_rate": 0.71
+    },
+    "grpo": {
+      "num_samples": 100,
+      "format_rate": {
+        "mean": 0.21,
+        "ci_low": 0.14,
+        "ci_high": 0.3
+      },
+      "accuracy": {
+        "mean": 0.39,
+        "ci_low": 0.3,
+        "ci_high": 0.48
+      },
+      "avg_total_reward": {
+        "mean": 0.6,
+        "ci_low": 0.47,
+        "ci_high": 0.74
+      },
+      "avg_completion_tokens": 275.8,
+      "avg_latency_seconds": 4.2721510481275615,
+      "invalid_output_rate": 0.79
+    }
+  },
+  "paired_comparisons": {
+    "grpo_vs_base": {
+      "num_samples": 100,
+      "wins": 6,
+      "ties": 80,
+      "losses": 14,
+      "win_rate": 0.06,
+      "tie_rate": 0.8,
+      "loss_rate": 0.14,
+      "total_reward_delta": {
+        "mean": -0.09,
+        "ci_low": -0.18,
+        "ci_high": 0.0
+      },
+      "accuracy_delta": {
+        "mean": -0.01,
+        "ci_low": -0.1,
+        "ci_high": 0.07
+      },
+      "format_delta": {
+        "mean": -0.08,
+        "ci_low": -0.15,
+        "ci_high": -0.02
+      }
+    }
+  }
+}
