@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
+from re import U
 from typing import Optional
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, Optional
 
 from loguru import logger
 from transformers import HfArgumentParser
@@ -82,7 +83,7 @@ class TrainScriptArguments:
         default="tensorboard",
         metadata={"help": "Trainer 上报目标；为空字符串表示关闭。"},
     )
-    resume_from_checkpoint: str | None = field(
+    resume_from_checkpoint: Optional[Union[str, bool]] = field(
         default=None,
         metadata={"help": '从 checkpoint 续训；可传具体目录，也可传 "last" 自动使用 output_dir 下最新 checkpoint。'},
     )
