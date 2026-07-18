@@ -83,7 +83,7 @@ class TrainScriptArguments:
         default="tensorboard",
         metadata={"help": "Trainer 上报目标；为空字符串表示关闭。"},
     )
-    resume_from_checkpoint: Optional[Union[str, bool]] = field(
+    resume_from_checkpoint: str | None = field(
         default=None,
         metadata={"help": '从 checkpoint 续训；可传具体目录，也可传 "last" 自动使用 output_dir 下最新 checkpoint。'},
     )

@@ -55,7 +55,7 @@ mkdir -p "${LOG_DIR}"
     --log_completions
 
     # checkpoint 保存策略
-    --resume_from_checkpoint
+    --resume_from_checkpoint "last"
     --save_strategy "steps"
     --save_steps 50
 
