@@ -15,7 +15,7 @@ class DatasetConfig:
     """数据集配置。"""
 
     dataset_id: str = "lmms-lab/multimodal-open-r1-8k-verified"
-    train_size: int | None = None
+    train_size: int | float | None = None
     test_size: int | float = 100
     seed: int = 42
 

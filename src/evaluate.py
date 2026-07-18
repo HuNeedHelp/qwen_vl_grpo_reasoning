@@ -51,13 +51,13 @@ class EvalScriptArguments:
         default="lmms-lab/multimodal-open-r1-8k-verified",
         metadata={"help": "评测数据集 ID。"},
     )
-    train_size: Optional[Union[int, float]] = field(
+    train_size: Optional[float] = field(
         default=None,
         metadata={
-            "help": "本地 train_test_split 后使用的训练样本数。整数表示样本数，浮点数表示比例（如 0.8）；None 表示使用除 test_size 外的全部样本。"
+            "help": "本地 train_test_split 后使用的训练样本数。传入整数值（如 500）表示样本数，传入浮点数（如 0.8）表示比例；None 表示使用除 test_size 外的全部样本。"
         },
     )
-    test_size: Union[int, float] = field(
+    test_size: float = field(
         default=100,
         metadata={"help": "本地 train_test_split 切出的大小。整数表示样本数，浮点数表示比例（如 0.2）；需要和训练时保持一致。"},
     )
