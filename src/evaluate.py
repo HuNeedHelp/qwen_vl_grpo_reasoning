@@ -51,13 +51,15 @@ class EvalScriptArguments:
         default="lmms-lab/multimodal-open-r1-8k-verified",
         metadata={"help": "评测数据集 ID。"},
     )
-    train_size: int | None = field(
+    train_size: int | float | None = field(
         default=None,
-        metadata={"help": "本地 train_test_split 后使用的训练样本数；需要和训练时保持一致。"},
+        metadata={
+            "help": "本地 train_test_split 后使用的训练样本数。整数表示样本数，浮点数表示比例（如 0.8）；None 表示使用除 test_size 外的全部样本。"
+        },
     )
-    test_size: int = field(
+    test_size: int | float = field(
         default=100,
-        metadata={"help": "本地 train_test_split 切出的验证样本数；需要和训练时保持一致。"},
+        metadata={"help": "本地 train_test_split 切出的大小。整数表示样本数，浮点数表示比例（如 0.2）；需要和训练时保持一致。"},
     )
     eval_samples: int = field(default=100, metadata={"help": "实际评测样本数。"})
     seed: int = field(default=42, metadata={"help": "随机种子。"})

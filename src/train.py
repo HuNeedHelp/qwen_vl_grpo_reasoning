@@ -29,15 +29,17 @@ class TrainScriptArguments:
         default="lmms-lab/multimodal-open-r1-8k-verified",
         metadata={"help": "训练数据集 ID。"},
     )
-    train_size: int | None = field(
+    train_size: int | float | None = field(
         default=None,
-        metadata={"help": "本地 train_test_split 后使用的训练样本数；None 表示使用除 test_size 外的全部样本。"},
+        metadata={
+            "help": "本地 train_test_split 后使用的训练样本数。整数表示样本数，浮点数表示比例（如 0.8）；None 表示使用除 test_size 外的全部样本。"
+        },
     )
     output_dir: str = field(
         default="outputs/grpo-qwen2p5-vl",
         metadata={"help": "模型、checkpoint 和日志输出目录。"},
     )
-    test_size: int = field(default=100, metadata={"help": "本地 train_test_split 切出的验证样本数。"})
+    test_size: int | float = field(default=100, metadata={"help": "本地 train_test_split 切出的验证集大小。整数表示样本数，浮点数表示比例（如 0.2）。"})
     seed: int = field(default=42, metadata={"help": "随机种子。"})
     max_prompt_tokens: int | None = field(
         default=None,
