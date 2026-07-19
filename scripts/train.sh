@@ -8,7 +8,7 @@ export PYTHONPATH="${PROJECT_ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
 
 # 接近 Hugging Face Cookbook 的完整训练模板。
 # 如果不用 vLLM，删除 --use_vllm 和 --vllm_mode 两行即可。
-OUTPUT_DIR="outputs/500steps-Qwen2.5-VL-3B-Instruct-Thinking"
+OUTPUT_DIR="outputs/Qwen2.5-VL-3B-Instruct-Thinking"
 LOG_DIR="${OUTPUT_DIR}/logs"
 LOG_FILE="${LOG_DIR}/train.log"
 mkdir -p "${LOG_DIR}"
@@ -28,7 +28,7 @@ mkdir -p "${LOG_DIR}"
     --max_prompt_tokens 2048
 
     # 训练步数、batch 和生成配置
-    --max_steps 500
+    --max_steps 1000
     --learning_rate 1e-5
     --num_train_epochs 1
     --per_device_train_batch_size 4
