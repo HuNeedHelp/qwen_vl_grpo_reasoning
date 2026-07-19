@@ -1,12 +1,15 @@
 ---
 base_model: Qwen/Qwen2.5-VL-3B-Instruct
-library_name: transformers
+library_name: peft
 model_name: Qwen2.5-VL-3B-Instruct-Thinking
 tags:
-- generated_from_trainer
+- base_model:adapter:Qwen/Qwen2.5-VL-3B-Instruct
 - grpo
+- lora
+- transformers
 - trl
 licence: license
+pipeline_tag: text-generation
 ---
 
 # Model Card for Qwen2.5-VL-3B-Instruct-Thinking
@@ -35,6 +38,7 @@ This model was trained with GRPO, a method introduced in [DeepSeekMath: Pushing 
 
 ### Framework versions
 
+- PEFT 0.19.1
 - TRL: 1.8.0
 - Transformers: 5.13.1
 - Pytorch: 2.12.1

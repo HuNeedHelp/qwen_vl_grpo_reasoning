@@ -13,6 +13,9 @@ LOG_DIR="${OUTPUT_DIR}/logs"
 LOG_FILE="${LOG_DIR}/train.log"
 mkdir -p "${LOG_DIR}"
 
+# 尝试使用如下参数设置tensorbaord路径
+export TENSORBOARD_LOGGING_DIR="${OUTPUT_DIR}/logs/tensorboard"
+
 {
   echo "log_file: ${LOG_FILE}"
   echo "started_at: $(date '+%Y-%m-%d %H:%M:%S')"
@@ -52,6 +55,7 @@ mkdir -p "${LOG_DIR}"
 
     # 日志、TensorBoard 和 completion 记录
     --report_to "tensorboard"
+    --logging_dir "${LOG_DIR}/tensorboard"
     --logging_steps 50
     --log_completions
 
