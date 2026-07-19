@@ -61,7 +61,7 @@ class EvalScriptArguments:
         default=100,
         metadata={"help": "本地 train_test_split 切出的大小。整数表示样本数，浮点数表示比例（如 0.2）；需要和训练时保持一致。"},
     )
-    eval_samples: int = field(default=100, metadata={"help": "实际评测样本数。"})
+    eval_samples: Optional[int] = field(default=None, metadata={"help": "实际评测样本数。"})
     seed: int = field(default=42, metadata={"help": "随机种子。"})
     max_prompt_tokens: int = field(
         default=2048,
@@ -117,11 +117,12 @@ def _prepare_eval_dataset(args: EvalScriptArguments, processor: Any) -> Any:
         processor,
         train_size=args.train_size,
         test_size=args.test_size,
+        eval_samples=args.eval_samples,
         seed=args.seed,
         max_prompt_tokens=args.max_prompt_tokens,
     )
     # eval_samples 只控制“最终评测多少条”，不会改变原始 train/eval 切分。
-    return eval_dataset.select(range(min(args.eval_samples, len(eval_dataset))))
+    return eval_dataset
 
 
 def _evaluate_model(

@@ -25,6 +25,7 @@ mkdir -p "${LOG_DIR}"
     # 数据集与 prompt 过滤
     --dataset_id "lmms-lab/multimodal-open-r1-8k-verified"
     --test_size 0.2
+    --eval_samples 100
     --max_prompt_tokens 2048
 
     # 训练步数、batch 和生成配置

@@ -42,6 +42,7 @@ class TrainScriptArguments:
         metadata={"help": "模型、checkpoint 和日志输出目录。"},
     )
     test_size: float = field(default=100, metadata={"help": "本地 train_test_split 切出的验证集大小。整数表示样本数，浮点数表示比例（如 0.2）。"})
+    eval_samples: Optional[int] = field(default=None, metadata={"help": "实际评测样本数。"})
     seed: int = field(default=42, metadata={"help": "随机种子。"})
     max_prompt_tokens: int | None = field(
         default=None,
@@ -225,6 +226,7 @@ def main() -> None:
             processor,
             train_size=args.train_size,
             test_size=args.test_size,
+            eval_samples=args.eval_samples,
             seed=args.seed,
             max_prompt_tokens=args.max_prompt_tokens,
         )

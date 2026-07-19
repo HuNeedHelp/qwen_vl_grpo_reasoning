@@ -106,7 +106,7 @@ def split_raw_dataset(
     return raw_dataset.train_test_split(seed=seed, **split_kwargs)
 
 
-def format_grpo_dataset(dataset: Dataset, processor: Any, max_prompt_tokens: int | None = None) -> Dataset:
+def format_and_filter_grpo_dataset(dataset: Dataset, processor: Any, max_prompt_tokens: int | None = None) -> Dataset:
     """把原始样本转换成 GRPO 样本，并按需过滤过长 prompt。"""
 
     keep_columns = {"prompt", "image", "solution"}
@@ -123,13 +123,19 @@ def prepare_datasets(
     *,
     train_size: int | float | None = None,
     test_size: int | float = 100,
+    eval_samples: int | None = None,
     seed: int = 42,
     max_prompt_tokens: int | None = None,
 ) -> tuple[Dataset, Dataset]:
     """先在原始数据池上切分，再分别转换成 GRPOTrainer 可用格式。"""
-
+    # 拆分数据集
     split = split_raw_dataset(raw_dataset, train_size=train_size, test_size=test_size, seed=seed)
-    train_dataset = format_grpo_dataset(split["train"], processor, max_prompt_tokens)
-    eval_dataset = format_grpo_dataset(split["test"], processor, max_prompt_tokens)
+    train_split, test_split = split["train"], split["test"]
+    # 选取部分验证集，避免评测整个验证集
+    if eval_samples is not None:
+        test_split = test_split.select(range(min(eval_samples, len(test_split))))
+
+    train_dataset = format_and_filter_grpo_dataset(train_split, processor, max_prompt_tokens)
+    eval_dataset = format_and_filter_grpo_dataset(test_split, processor, max_prompt_tokens)
 
     return train_dataset, eval_dataset
