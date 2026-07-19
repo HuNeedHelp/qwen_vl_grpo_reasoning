@@ -1,0 +1,3 @@
+model,num_samples,format_rate,format_ci_low,format_ci_high,accuracy,accuracy_ci_low,accuracy_ci_high,avg_total_reward,reward_ci_low,reward_ci_high,invalid_output_rate,avg_completion_tokens,avg_latency_seconds
+base,100,0.29,0.2,0.37,0.2,0.13,0.28,0.49,0.38,0.61,0.71,270.1,3.457455123085529
+grpo,100,0.98,0.95,1.0,0.23,0.15,0.31,1.21,1.13,1.3,0.020000000000000018,224.7,3.690611160509288
