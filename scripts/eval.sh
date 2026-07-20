@@ -11,7 +11,7 @@ export PYTHONPATH="${PROJECT_ROOT}/src${PYTHONPATH:+:${PYTHONPATH}}"
 # 训练完成后，把 GRPO_MODEL_PATH 改成你的 checkpoint/adaptor 目录。
 BASE_MODEL_PATH="Qwen/Qwen2.5-VL-3B-Instruct"
 GRPO_MODEL_PATH="outputs/Qwen2.5-VL-3B-Instruct-Thinking"
-OUTPUT_DIR="outputs/eval/checkpoint-1000_base_vs_grpo"
+OUTPUT_DIR="outputs/eval/2000steps_base_vs_grpo"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 "${PYTHON_BIN}" -m evaluate \
@@ -19,7 +19,7 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
   --processor_path "${BASE_MODEL_PATH}" \
   --dataset_id "lmms-lab/multimodal-open-r1-8k-verified" \
   --test_size 0.2 \
-  --eval_samples 100 \
+  --eval_samples 500 \
   --max_prompt_tokens 2048 \
   --max_new_tokens 512 \
   --eval_batch_size 2 \

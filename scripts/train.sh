@@ -13,9 +13,6 @@ LOG_DIR="${OUTPUT_DIR}/logs"
 LOG_FILE="${LOG_DIR}/train.log"
 mkdir -p "${LOG_DIR}"
 
-# 尝试使用如下参数设置tensorbaord路径
-export TENSORBOARD_LOGGING_DIR="${OUTPUT_DIR}/logs/tensorboard"
-
 {
   echo "log_file: ${LOG_FILE}"
   echo "started_at: $(date '+%Y-%m-%d %H:%M:%S')"
@@ -28,11 +25,10 @@ export TENSORBOARD_LOGGING_DIR="${OUTPUT_DIR}/logs/tensorboard"
     # 数据集与 prompt 过滤
     --dataset_id "lmms-lab/multimodal-open-r1-8k-verified"
     --test_size 0.2
-    --eval_samples 100
     --max_prompt_tokens 2048
 
     # 训练步数、batch 和生成配置
-    --max_steps 1000
+    --max_steps 2000
     --learning_rate 1e-5
     --num_train_epochs 1
     --per_device_train_batch_size 4
@@ -42,7 +38,8 @@ export TENSORBOARD_LOGGING_DIR="${OUTPUT_DIR}/logs/tensorboard"
 
     # 训练期评估：指标会写入 TensorBoard
     --eval_strategy "steps"
-    --eval_steps 50
+    --eval_steps 500
+    --eval_samples 100
     --per_device_eval_batch_size 8
 
     # 精度与显存优化
