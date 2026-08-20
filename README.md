@@ -699,9 +699,9 @@ summary.csv                  # 扁平表格，适合粘到实验记录
 8. 保存逐样本 JSONL，支持人工 case study。
 9. 使用 `run_config.json` 防止续评时混入不同实验配置。
 
-## 如何解读结果
+## 结果
 
-优先看 `summary.csv`：
+`summary.csv`：
 
 ```text
 model,num_samples,format_rate,accuracy,avg_total_reward,invalid_output_rate
@@ -709,7 +709,7 @@ base,...
 grpo,...
 ```
 
-建议在实验记录中整理成：
+在实验记录中整理成：
 
 ```text
 Format Compliance:  base_xx% -> grpo_yy%
@@ -727,78 +727,6 @@ Paired Win Rate:    grpo_zz%
 4. 改进 prompt。
 5. 使用更稳定的数学答案验证依赖。
 
-## Case Study 建议
-
-打开：
-
-```text
-outputs/eval/base_vs_grpo/grpo_vs_base_paired.jsonl
-```
-
-挑选：
-
-1. GRPO 赢的样本 2 到 3 个。
-2. GRPO 输的样本 1 到 2 个。
-3. base 和 GRPO 都错的困难样本 1 个。
-
-展示时不要只放成功案例。能解释失败样本，反而更像一个认真做过实验的项目。
-
-## 简历展示建议
-
-英文版本：
-
-> Built a GRPO post-training pipeline for Qwen2.5-VL-3B-Instruct with custom format and answer rewards; evaluated base vs fine-tuned models on a held-out multimodal reasoning set, reporting format compliance, answer accuracy, average reward, bootstrap confidence intervals, and paired win/tie/loss analysis.
-
-中文版本：
-
-> 基于 TRL + GRPO 对 Qwen2.5-VL-3B-Instruct 进行多模态推理后训练，设计格式奖励和答案正确性奖励；构建留出集评测流程，对比 base model 与后训练模型的格式合规率、答案准确率、平均 reward，并提供 bootstrap 置信区间和配对胜率分析。
-
-如果你已经跑出了具体数字，可以写得更有成果感：
-
-```text
-在 100 条留出图文推理样本上，相比 base model，GRPO 后训练模型将格式合规率从 xx% 提升到 yy%，平均 reward 从 x.xx 提升到 y.yy，并通过 paired comparison 统计同题胜率。
-```
-
-## 常见问题
-
-### 为什么不用 `-m src.train`？
-
-因为 `-m` 后面接的是 Python 模块路径，不是文件系统路径。执行 `pip install -e .` 后，可导入入口模块是：
-
-```text
-train
-```
-
-所以正确写法是：
-
-```bash
-python3 -m train
-accelerate launch -m train
-```
-
-### 为什么保留 `solution` 列？
-
-因为 `accuracy_reward` 和评测脚本都需要读取标准答案。如果删除 `solution`，reward function 无法判断答案对错。
-
-### 为什么 `remove_unused_columns=False`？
-
-训练时 reward function 需要访问 `solution`，而 VLM 训练还需要保留 `image`。如果自动删除未使用列，reward 和图像字段可能无法正常工作。
-
-### 为什么不用 `max_prompt_length`？
-
-`GRPOConfig.max_prompt_length` 已经 deprecated。项目改为在数据进入 trainer 前用 `--max_prompt_tokens` 过滤过长 prompt。
-
-### 为什么默认用 LoRA？
-
-VLM + GRPO 显存开销较大。LoRA 可以显著降低训练成本，也更适合个人 GPU 或租用 GPU 做实验。
-
-### 为什么评测默认 batch size 不是很大？
-
-VLM batch 推理不仅受文本长度影响，还受图片尺寸和视觉 token 数影响。默认 `--eval_batch_size 2` 是一个折中值；显存不足时改成 1。
-
-### Windows 上遇到 torchvision / qwen-vl-utils 问题怎么办？
-
-正式训练和评测建议放到 Linux / WSL2 / 远程服务器。Windows 环境可以先做代码阅读和纯 Python 单元测试。
 
 ## 测试
 
